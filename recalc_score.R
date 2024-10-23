@@ -1,7 +1,7 @@
 library(dplyr)
 setwd("C:/Users/maxim/Documents/R/Old Computer Code/Schools2/rdata")
 
-# Load dataset
+# Load saved dataset
 ac <- readRDS("full2.rds")
 
 #After 2012 All students calculated. Any grade or group with less than 5 students reports no test score so they're removed
