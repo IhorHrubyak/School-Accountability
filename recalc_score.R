@@ -1,4 +1,5 @@
 library(dplyr)
+library(ggplot2)
 setwd("C:/Users/maxim/Documents/R/Old Computer Code/Schools2/rdata")
 
 # Load saved dataset
