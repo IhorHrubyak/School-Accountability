@@ -1,0 +1,102 @@
+---
+author: "John Ihor Campagna"
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes: \usepackage{setspace}\doublespacing
+title: 'Do Homebuyers Care About Good Grades?: Evaluating the Effect of NYC School
+  Accountability Program on Housing Values'
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(markdown)
+library(rmarkdown)
+library(readxl)
+library(tidyr)
+library(pander)
+library(plyr)
+library(dplyr)
+library(stargazer)
+library(rdd)
+library(rddtools)
+library(ggplot2)
+library(lattice)
+library(htmlTable)
+library(grid)
+library(gridExtra)
+library(cowplot)
+library(png)
+library(grid)
+knitr::opts_chunk$set(echo = FALSE)
+setwd("C:/Users/Sarah Blair/Documents/R/Schools2/rdata")
+
+```
+
+## IV. Results
+
+### A. Empirical Strategy
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Following Rosen (1974) hedonic estimation assumes an inelastic supply of housing with heterogenus consumers with differing tastes. The hedonic function models the equlibirum where the sales price is determined by all characteristics that matter to the marginal consumer. The relationship to be estimated to understand how school quality is accounted for is below:
+
+$$\ ln(P_{i,z,n}) = \alpha+X_{i,z}+Z_{n}+\Gamma_{z}+e_{i,z,t} $$
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $\ ln(P_{i,z,n})$ is the log price of property i sold in school zone z and neighborhood, $X_{i,z}$ is a vector of housing characteristics for property i in school zone z, $Z_{z,n}$ is a vector of neighborhood characteristics in neighborhood n, $\gamma$ is the school quality measure for the school in school zone z, $e_{i,z,n}$ is the error term. The biggest issue is with omitted variable bias and the difficulty of capturing every sort of measure that may be relevant to the property market across school zones eg proximity to public goods. In particular a concern is that factors that influence the school quality, such as peer effects or find better reason, that may determine why schools receive the grades they did will not be present. This will be mitigated as much as possible through $Z_{z,n}$ which includes census block and track controls. Nonetheless estimates of the effect of school quality through the hedonic method should be interpreted as an upper bound estimate.
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Tables X present the results of just using test scores as the measure of school quality for the full time span of the avaliable data and for each year along with some property and census characteristics. The regression includes housing characteristics including the year built, gross square feet, year altered, and neighborhood characteristics from the 2010 census blocks for each property which includes racial characetrics, median age,and average family size . As expected, given the prior literature, test scores are consistently capitalized into property prices with the magnitude being fairly consistent over time.
+
+```{r, echo=FALSE,warning=FALSE,results = "asis",header=FALSE}
+#Loading and selecting necessary subets
+setwd("C:/Users/Sarah Blair/Documents/R/Schools2/rdata")
+za2 <- readRDS("za4.rds")
+#Just test score for all years
+p <- select(za2, 4,6:22,24:31)
+p2 <- select(za2, 5,6:22,24:31)
+r <-  lm(log(p$`Sale Price`) ~  .,data=p)
+r2 <-  lm(log(p$`Sale Price`) ~  .,data=p2)
+r10 <-  lm(log(p$`Sale Price`) ~  .,data=p,subset=(Y=="10"))
+r11 <-  lm(log(p$`Sale Price`) ~  .,data=p,subset=(Y=="11"))
+r12 <-  lm(log(p$`Sale Price`) ~  .,data=p,subset=(Y=="12"))
+r13 <-  lm(log(p$`Sale Price`) ~  .,data=p,subset=(Y=="13"))
+r14 <-  lm(log(p$`Sale Price`) ~  .,data=p,subset=(Y=="14"))
+
+stargazer(r,r2,title="Test Scores For All Years",column.labels = c("English","Math"),keep = c("Math Score","English Score","Borough","Median Age","Percentage Asian","Percentage White","Percentage Family Households"),style="qje",omit.stat = c("f","ser"))
+
+stargazer(r10,r11,r12,r13,r14,title="Test Scores Along Each Year",column.labels = c("2009-2010","2010-2011","2011-2012","2012-2013","2013-2014"),keep = c("Math Score","English Score","Borough","Median Age","Percentage Asian","Percentage White","Percentage Family Households"),style="qje",omit.stat = c("f","ser"))
+```
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Table Y uses just the letter grades as the measure of school quality showing that grades often matter. Table Z adding test scores, which are strongly correlated to the grades, shows much of the effect diminishing.
+```{r, echo=FALSE,warning=FALSE,results = "asis",header=FALSE}
+pl <- select(za2, 2,3,6:22,24:31)
+reg10 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="10"))
+reg11 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="11"))
+reg12 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="12"))
+reg13 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="13"))
+reg14 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="14"))
+stargazer(reg10,reg11,reg12,reg13,reg14,title="School Quality Grades Results No Test Scores ",column.labels = c("2009-2010","2010-2011","2011-2012","2012-2013","2013-2014"),keep = c("Grade"),style="qje",omit.stat = c("f","ser"))
+```
+
+```{r, echo=FALSE,warning=FALSE,results = "asis",header=FALSE}
+pl <- select(za2, 2,3,5,6:22,24:31)
+reg10 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="10"))
+reg11 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="11"))
+reg12 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="12"))
+reg13 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="13"))
+reg14 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="14"))
+stargazer(reg10,reg11,reg12,reg13,reg14,title="School Quality Grades Results With Test Scores ",column.labels = c("2009-2010","2010-2011","2011-2012","2012-2013","2013-2014"),keep = c("Grade","English"),style="qje",omit.stat = c("f","ser"))
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; A further test is looking at whether there was any effect on the non-residential property market. Controlling for neighborhood characteristics there doesn't seem to be a clear theortical reason why the sale of office buildings, hotels, factories, warehouses etc should be related to measures of school quality.
+```{r, echo=FALSE,warning=FALSE,results = "asis",header=FALSE}
+setwd("C:/Users/Sarah Blair/Documents/R/Schools2/rdata")
+za2 <- readRDS("za6.rds")
+pl <- select(za2, 2,3,5,6:22,24:31)
+reg10 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="10"))
+reg11 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="11"))
+reg12 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="12"))
+reg13 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="13"))
+reg14 <- lm(log(`Sale Price`) ~  .,data=pl,subset=(Y=="14"))
+stargazer(reg10,reg11,reg12,reg13,reg14,title="School Quality Grades Results With Test Scores ",column.labels = c("2009-2010","2010-2011","2011-2012","2012-2013","2013-2014"),keep = c("Grade","English"),style="qje",omit.stat = c("f","ser"))
+
+```

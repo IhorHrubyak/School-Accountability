@@ -1,0 +1,182 @@
+---
+title: 'Do Homebuyers Care About Good Grades?: Evaluating the Effect of NYC School Accountability Program on Housing Values'
+author: "John Ihor Campagna"
+date: "December 3, 2017"
+output:
+ioslides_presentation: 
+  widescreen: true
+  smaller: true
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(markdown)
+library(rmarkdown)
+library(readxl)
+library(tidyr)
+library(pander)
+library(dplyr)
+library(plyr)
+library(stargazer)
+library(rdd)
+library(rddtools)
+library(ggplot2)
+library(lattice)
+library(htmlTable)
+setwd("C:/Users/Sarah Blair/Documents/R/Schools2/rdata")
+ac <- readRDS("full2.rds")
+za <- readRDS("za.rds")
+za_f <- filter(za,bu_class == "01  ONE FAMILY HOMES")
+
+
+#2010 Property Sales data removing zero sale prices
+tab <- filter(za,bu_class == "01  ONE FAMILY HOMES", Y == 12, za$SALE.PRICE > 1000, za$SALE.PRICE < 3000000)
+cols <- c(75,77,22,24,28,30,32,34,62,97,78)
+tab <- tab[,cols]
+
+names(tab) <- c("English Test Score","Math Test Score","English Language Learners Percent","Special Education Percent","Asian Percent","Black Percent","Hispanic Percent","White Percent","Accountability Grade","Sale Price", "Bourough")
+
+```
+
+
+
+## I. Introduction
+
+
+- 2006-2007 First year of NYC Progress Reports implemented
+
+- Followed NCLB and state programs in TX,FL,NC
+
+- Goals were to pressure schools to reform and improve student outcomes
+
+- Accountability programs created a unique discontiuity to study
+
+- Consequences broader than student outcomes
+
+- NYC large urban, and multiple ethnic context to explore the consequences
+
+## II Background | School Accountability Literature
+
+
+Student Outcomes
+
+- Rockoff and Turner(2010) NYC positive effect D/F first year
+
+- Cowen and Winters(2011) NYC positive effect persists
+
+- Elena Rouse and Figlio (2006) Florida positive effect
+
+Labor and Demographic
+
+- Deming et al. (2016) Income and college effects
+
+- Dizon-Ross (2017) Teacher Responses NYC
+
+- Hart and Figlio (2015) Demographic Shifts
+
+
+## II. Background | School Quality Literature
+
+
+How Much Does School Quality Matter?
+
+- Black (1999) BDD design
+
+- Bayer, Ferreira and McMillan (2007) Sorting along border
+
+What Matters?
+
+- Clapp, Nanda and Ross (2008) Race matters
+
+- Brassington and Haurin (2006) Value added measures don't
+
+- Horn, Schwartz, and Voicu (2014) School Choice matters
+
+## II Background | School Quality and Accountability
+
+
+Do Accountability Assesments Matter?
+
+- Figlio and Lucas (2004) Yes, FL for high grades
+
+- Kane et al.(2002) no in NC
+
+- Martinez (2010) yes in NC
+
+## III. Data | NYC DOE 
+Mention exceptions in schools used/
+- NYC Progress Report
+- Grades A-F based on composite point score 
+- Composite Score calculated relative to peer schools
+1. 60 Student Progress
+2. 25 Student Performance
+3. 15 School Environment
+4. Up to 16 "Closing The Achievement gap"
+
+- Number of schools vary slightly by year
+-
+## III. Data | NYC DOE 
+
+Show Real Percentiles for each year? If yes use html table
+Double check the below
+
+Grade	Percent 2007 2011
+----- --------- ------ ----
+A 25%
+B 35%
+C 25% 
+D 10%
+F 5%
+
+-In Practice with additonal credit these are not the actual percentiles.
+-After 08-09 Scores percentiles implemneted before that cut scores were used
+
+## III. Data | NYC DOE 
+
+- Test Score Data
+- NY State ELA and Math exams for grades 3-8
+- School Zones
+- Can vary slightly by year, but only increase
+- Most, but not all zones, have one school associated with it
+- School Demographic 
+
+
+## III. Data | Propery
+
+
+- Property Transactions
+- X number of properties
+- Table of property types in year
+
+- Property Location 
+- NYC PLUTO geocode of every building
+
+## IV. Summary Stats: Properties in School Zones
+
+Color points by accountability grade
+
+![Properties in School Zones](C:/Users/Sarah Blair/Pictures/man_prop.png)
+
+---
+
+![Properties in School ZOnes Brooklyn](C:/Users/Sarah Blair/Pictures/brookl.png)
+
+---
+
+## IV. Summary Stats: Borough Characteristics {.flexbox .vcenter} 
+
+``` {r, echo=FALSE,warning=FALSE,results='asis'}
+#By Borough
+MN <- filter(tab, Bourough == "MN")
+BX <- filter(tab, Bourough == "BX")
+SI <- filter(tab, Bourough == "SI")
+BK <- filter(tab, Bourough == "BK")
+QN <- filter(tab, Bourough == "QN")
+
+stargazer(MN,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Manhattan School Descriptive Statistics")
+stargazer(BK,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Brooklyn School Descriptive Statistics")
+stargazer(QN,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Queens School Descriptive Statistics")
+stargazer(BX,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Brooklyn School Descriptive Statistics")
+stargazer(SI,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Staten Island School Descriptive Statistics")
+
+```

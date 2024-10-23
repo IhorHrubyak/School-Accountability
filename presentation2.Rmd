@@ -1,0 +1,219 @@
+---
+title: 'Do Homebuyers Care About Good Grades?: Evaluating the Effect of NYC School
+Accountability Program on Housing Values'
+author: "John Ihor Campagna"
+date: "December 3, 2017"
+output:
+slidy_presentation: default
+ioslides_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(ggplot2)
+```
+
+## I. Introduction/Motivation
+
+
+-2006-2007 First year of New York City Progress Reports under Bloomberg
+
+-Followed No Child Left Behind(NCLB) in 2001 under President Bush and State level in Florida and Texas in 90s
+
+-Broadly intial Goals were to pressure schools to reform and improve student outcomes
+
+-The nature of how the grades were implemented provided a unique discontinuity that had many applications
+
+-The housing market is one application seeing how parents respond to an imperfect measure of school quality and what broader consequneces could be.
+
+-NYC accountabilty program provides a large urban, and multiple ethnic context to explore the consequences
+
+----
+
+## I Background: School Accountability Literature
+
+1. School Accountability Literature
+
+Student Outcomes
+
+-Rockoff(2010) 
+
+-Cowen and Winters(2011)
+
+-Elena Rouse et al(2013) 
+
+
+Labor Market
+-Dizon-Ross (2017)
+
+Demographic
+-Hart and Figlio (2015) 
+
+Long Term
+-Deming et al. (2016)
+
+
+----
+
+## I. Background: School Quality Literature
+
+2.school Quality Literature
+
+-Black(1999)
+
+Sorting/Demographic
+
+-Bayer et al(2007) 
+
+-Clapp(2008)
+
+Value Added
+
+-Brassington and Haurin(2006) 
+
+-Chiodo et al (2010) 
+
+-Horn(2014) NYC choice schools
+
+----
+
+## II Background: School Quality and Accountability
+
+3. School Quality and Accountability
+
+-Figlio and Lucas(2004) 
+
+-Ideal to get starting effects of accountability as effect appears to decrease over time
+
+-Kane et al (2002) no effect NC, race matters black scores not as important
+
+-Martinez (2010) effect NC
+
+
+
+----
+
+## III. Data
+
+Drawn from Multiple Sources
+
+1. NYC DOE 
+
+- Accountability Scores
+
+- Test Score Data
+
+- School Demographic 
+
+- School Zones
+
+2. Property Data
+
+-Property Transactions
+
+-Property Location data
+
+3. Cenus Data
+
+-Likely need for neighborhood controls
+
+
+----
+
+## III. Summary Stats
+```{r, echo=FALSE,warning=FALSE,fig.width=6,fig.height=4}
+setwd("C:/Users/Sarah Blair/Documents/R/Schools2/rdata")
+ac <- readRDS("full2.rds")
+
+ac_11 <- filter(ac, Year == "2011", Category == "All Students", Grade == "All Grades", Grade_11 != "NA")
+ac_11$Score_11 <-  as.numeric(ac_11$Score_11)
+
+ggplot(ac_11, aes(x=Score_11, y=eng_sco))  + geom_point(aes(color = Grade_11))+  labs(title ="2011 English Scores", x = "Overall Score", y="English score") + theme(legend.position = "bottom")+ scale_colour_discrete(name  ="Accountability Grade")    
+ggplot(ac_11, aes(x=Score_11, y=eng_sco))  + geom_point(aes(color = Grade_11))+  labs(title ="2011 Math Scores", x = "Overall Score", y="Math score") + theme(legend.position = "bottom")+ scale_colour_discrete(name  ="Accountability Grade")    
+```
+
+Plot of Property Values by raw school scores not grades
+
+Same for Property Values in the school zones
+
+Table of Property Types in neighborhood
+
+Pretty maps of property and schools in zones etc
+
+
+----
+
+## IV. Model: Hedonic
+1. Classic Hedonic
+-Rosen(1974)
+-Revealed preference model of estimation
+
+$$\ ln(P_{i,z,n}) = \alpha+X_{i,n}+Z_{n}+\Gamma_{z}+e_{i,z,t} $$
+
+-$X_{i,z}$ is a vector of Housing characteristics
+-$Z_{z,n}$ is school zone characteristics
+-$\gamma$ is the school quality measure 
+-$\e_{i,z,t}$ error term
+
+
+----
+
+# IV. Model: BDD
+
+2. BDD
+
+-Black(1999)
+
+-$Z_{z,n}$ from the hedonic model may not account for everything
+
+-Assumes properties that are arbitrarily close to a school zone boundary have the same characristics
+
+$$(2) \ ln(P_{i,z,b}) = \alpha+X_{i,z,b}+K_{b}+\Gamma_{z}+e_{i,z,t} $$ 
+-$Z_{z,n}$ goes away replaced by $K_{b}$ which is a vector of boundary dummies
+-Still may be issue as Bayer(2007) show so may still need neighborhood controls
+
+
+
+----
+
+# IV. Model: Fixed Effects
+3. Fixed Effects
+
+-All Accountability School Quality Papers have employed this strategey 
+-Figlio(2002)...does this need to control for schools? Because of fixed effects neighborhood and invidiual prop characteristics don't need to be controlled? Add test scores as well? Only Compare A/B, B/C, C/D, D/F 
+
+
+
+
+$$(3) \ ln(P_{i,n,z,m,y}) = \alpha_{i} +X_{i,z,y}+Z_{i,y}+\beta_{m} +\Gamma_{i,z,t}+e_{i,n,z,m,y} $$
+
+-$\ln(P_{i,n,z,m,y})$ is the price for for property i, in school zone z, month m, year y
+
+-$\alpha_{i}$ captures fixed property effects that don't change over time
+
+-$\beta_m{m}$ are monthly dummies
+
+
+Other Models
+-Look at same schools where the grade has changed in a year
+-Bandwiths in regards to RDD could also be used. EG really look at schools that were arbitarily close that could have recieved either A/B so compare 88-92. Can treat like regular RDD
+
+----
+
+## V. Problems/To Do
+
+
+Problems
+
+-Missing Earlier Data
+
+-Problem of grade churning and changing over time
+
+-Middle Schools
+
+-Census Tract Data
+
+-Distance
+-Perpahs can just capture schools that are arbitrarily close to a school assuming that they are in the same school zone and at least look at what the effect year on year is e.g. What happened for schools assigned an F v those assigned a D
+-Boundaries that are not natural or random i.e. a highway or river dividing a school zone

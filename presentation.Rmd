@@ -1,0 +1,365 @@
+---
+title: 'Do Homebuyers Care About Good Grades?: Evaluating the Effect of NYC School Accountability Program on Housing Values'
+author: "John Ihor Campagna"
+date: "December 3, 2017"
+output:
+ioslides_presentation: 
+  widescreen: true
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+library(markdown)
+library(rmarkdown)
+library(readxl)
+library(tidyr)
+library(pander)
+library(dplyr)
+library(plyr)
+library(stargazer)
+library(rdd)
+library(rddtools)
+library(ggplot2)
+library(lattice)
+library(htmlTable)
+setwd("C:/Users/Sarah Blair/Documents/R/Schools2/rdata")
+ac <- readRDS("full2.rds")
+za <- readRDS("za.rds")
+za_f <- filter(za,bu_class == "01  ONE FAMILY HOMES")
+
+
+#2010 Property Sales data removing zero sale prices
+tab <- filter(za,bu_class == "01  ONE FAMILY HOMES", Y == 12, za$SALE.PRICE > 1000, za$SALE.PRICE < 3000000)
+cols <- c(75,77,22,24,28,30,32,34,62,97,78)
+tab <- tab[,cols]
+
+names(tab) <- c("English Test Score","Math Test Score","English Language Learners Percent","Special Education Percent","Asian Percent","Black Percent","Hispanic Percent","White Percent","Accountability Grade","Sale Price", "Bourough")
+
+```
+
+
+
+## I. Introduction
+
+
+- 2006-2007 First year of NYC Progress Reports implemented
+
+- Followed NCLB and state programs in TX,FL,NC
+
+- Goals were to pressure schools to reform and improve student outcomes
+
+- Accountability programs created a unique discontiuity to study
+
+- Consequences broader than student outcomes
+
+- NYC large urban, and multiple ethnic context to explore the consequences
+
+## II Background | School Accountability Literature
+
+
+Student Outcomes
+
+- Rockoff and Turner(2010) NYC positive effect D/F first year
+
+- Cowen and Winters(2011) NYC positive effect persists
+
+- Elena Rouse and Figlio (2006) Florida positive effect
+
+Labor and Demographic
+
+- Deming et al. (2016) Income and college effects
+
+- Dizon-Ross (2017) Teacher Responses NYC
+
+- Hart and Figlio (2015) Demographic Shifts
+
+
+## II. Background | School Quality Literature
+
+
+How Much Does School Quality Matter?
+
+- Black (1999) BDD design
+
+- Bayer, Ferreira and McMillan (2007) Sorting along border
+
+What Matters?
+
+- Clapp, Nanda and Ross (2008) Race matters
+
+- Brassington and Haurin (2006) Value added measures don't
+
+- Horn, Schwartz, and Voicu (2014) School Choice matters
+
+## II Background | School Quality and Accountability
+
+
+Do Accountability Assesments Matter?
+
+- Figlio and Lucas (2004) Yes, FL for high grades
+
+- Kane et al.(2002) no in NC
+
+- Martinez (2010) yes in NC
+
+## III. Data | NYC DOE 
+Mention exceptions in schools used/
+- NYC Progress Report
+- Grades A-F based on composite point score 
+- Composite Score calculated relative to peer schools
+1. 60 Student Progress
+2. 25 Student Performance
+3. 15 School Environment
+4. Up to 16 "Closing The Achievement gap"
+
+- Number of schools vary slightly by year
+-
+## III. Data | NYC DOE 
+
+Show Real Percentiles for each year? If yes use html table
+Double check the below
+
+Grade	Percent 2007 2011
+----- --------- ------ ----
+A 25%
+B 35%
+C 25% 
+D 10%
+F 5%
+
+-In Practice with additonal credit these are not the actual percentiles.
+-After 08-09 Scores percentiles implemneted before that cut scores were used
+
+## III. Data | NYC DOE 
+
+- Test Score Data
+- NY State ELA and Math exams for grades 3-8
+- School Zones
+- Can vary slightly by year, but only increase
+- Most, but not all zones, have one school associated with it
+- School Demographic 
+
+
+## III. Data | Propery
+
+
+- Property Transactions
+- X number of properties
+- Table of property types in year
+
+- Property Location 
+- NYC PLUTO geocode of every building
+
+## IV. Summary Stats: Properties in School Zones
+
+Color points by accountability grade
+
+![Properties in School Zones](C:/Users/Sarah Blair/Pictures/man_prop.png)
+
+---
+
+![Properties in School ZOnes Brooklyn](C:/Users/Sarah Blair/Pictures/brookl.png)
+
+---
+
+## IV. Summary Stats: Borough Characteristics {.flexbox .vcenter} 
+
+``` {r, echo=FALSE,warning=FALSE,results='asis'}
+#By Borough
+MN <- select(filter(tab, Bourough == "MN"), `Sale Price`)
+BX <- select(filter(tab, Bourough == "BX"), `Sale Price`)
+SI <- select(filter(tab, Bourough == "SI"), `Sale Price`)
+BK <- select(filter(tab, Bourough == "BK"), `Sale Price`)
+QN <- select(filter(tab, Bourough == "QN"), `Sale Price`)
+
+stargazer(MN,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Manhattan Property Statistics")
+stargazer(BK,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Brooklyn Property Statistics")
+stargazer(QN,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Queens Property Statistics")
+stargazer(BX,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Brooklyn Property Statistics")
+stargazer(SI,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "Staten Island Property Statistics")
+
+```
+
+## IV. Summary Stats: School Characteristics {.flexbox .vcenter} 
+
+fIX PROPERTY PRICE, AND ADD PREVIOUS YEAR TEST SCORE, SO FIX ZA. Try to add flip=true to stargazer 
+
+```{r, echo=FALSE,warning=FALSE,results='asis'}
+tab <- filter(za,bu_class == "01 ONE FAMILY HOMES", Y == 12, za$SALE.PRICE > 1000, za$SALE.PRICE < 3000000)
+cols <- c(75,77,22,24,28,30,32,34,62,97,78)
+tab <- tab[,cols]
+
+
+names(tab) <- c("English Test Score","Math Test Score","English Language Learners Percent","Special Education Percent","Asian Percent","Black Percent","Hispanic Percent","White Percent","Accountability Grade","Sale Price", "Bourough")
+a <- filter(tab, `Accountability Grade` =="A")
+b <- filter(tab, `Accountability Grade` =="B")
+c <- filter(tab, `Accountability Grade` =="C")
+d <- filter(tab, `Accountability Grade` =="D")
+f <- filter(tab, `Accountability Grade` =="F")
+
+stargazer(a,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "A School Descriptive Statistics")
+stargazer(b,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "B School Descriptive Statistics")
+```
+
+--- 
+
+```{r, echo=FALSE,warning=FALSE,results='asis'}
+stargazer(b,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "C School Descriptive Statistics")
+stargazer(c,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "D School Descriptive Statistics")
+```
+
+--- 
+
+
+```{r, echo=FALSE,warning=FALSE,results='asis'}
+stargazer(d,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "D School Descriptive Statistics")
+stargazer(f,type="html",header=FALSE,digits=0,notes="Note: The mean and SD are rounded",title= "F School Descriptive Statistics")
+
+```
+
+
+## IV. Summary Stats: Accountability Grades and Test Scores {.flexbox .vcenter}
+
+Make sure current Year shown
+
+```{r, echo=FALSE,warning=FALSE,fig.width=8,fig.height=5.5}
+
+ac_11 <- filter(ac, Year == "2011", Category == "All Students", Grade == "All Grades", Grade_11 != "NA")
+ac_11$Score_11 <- as.numeric(ac_11$Score_11)
+
+ggplot(ac_11, aes(x=Score_11, y=eng_sco)) + geom_point(aes(color = Grade_11))+ labs(title ="2011 English Scores", x = "Overall Score", y="English Score") + theme(legend.position = "bottom")+ scale_colour_discrete(name ="Accountability Grade")+ geom_smooth(method = "lm", se = FALSE,color="red") 
+```
+
+
+## IV. Summary Stats: Accountability Grades and Test Scores {.flexbox .vcenter} 
+
+```{r, echo=FALSE,warning=FALSE,fig.width=8,fig.height=5.5}
+ggplot(ac_11, aes(x=Score_11, y=math_sco)) + geom_point(aes(color = Grade_11))+ labs(title ="2011 Math Scores", x = "Overall Score", y="Math Score") + theme(legend.position = "bottom")+ scale_colour_discrete(name ="Accountability Grade")+ geom_smooth(method = "lm", se = FALSE,color="red")
+```
+
+## IV. Summary Stats: Overall Scores and Property Prices {.flexbox .vcenter} 
+
+``` {r, echo=FALSE,warning=FALSE,results='asis'}
+pl <- filter(za,bu_class == "01 ONE FAMILY HOMES", Y == 12, Grade_12 != "NA", za$SALE.PRICE > 10000, za$SALE.PRICE < 1000000)
+
+#Plot weird some overall scors seem wrongs
+pl$Score_11 <- as.numeric(pl$Score_11)
+ggplot(pl, aes(x=Score_12, y=SALE.PRICE)) + geom_point(aes(color = Grade_12))+ labs(title ="2011 English Scores", x = "Overall Score", y="English score") + theme(legend.position = "bottom")+ scale_colour_discrete(name ="Accountability Grade") + geom_smooth(method = "lm", se = FALSE,color="red") 
+
+```
+
+--- 
+
+```{r, echo=FALSE,warning=FALSE,results='asis',fig.width=8,fig.height=5.5}
+ggplot(pl, aes(x=eng_sco, y=SALE.PRICE)) + geom_point(color='blue') +geom_smooth(method = "lm", se = FALSE,color="red")
+```
+
+---
+
+```{r, echo=FALSE,warning=FALSE,results='asis',fig.width=8,fig.height=5.5}
+ggplot(pl, aes(x=math_sco, y=SALE.PRICE))+ geom_point() + labs(title ="2011 English Scores", x = "Overall Score", y="English score") + theme(legend.position = "bottom")+ scale_colour_discrete(name ="Accountability Grade") 
+```
+
+
+
+
+## V. Model | Hedonic 
+- Rosen(1974)
+
+- Revealed preference model of estimation
+
+
+$$\ (1) ln(P_{i,z,n}) = \alpha+X_{i,n}+Z_{n}+\Gamma_{z}+e_{i,z,t} $$
+$ln(P_{i,z,n})$ Log price of property i in school zone z and neighborhood n
+
+$X_{i,z}$ housing characteristics
+
+$Z_{n}$ neighborhood characteristics
+
+$\Gamma_{z,n}$ school quality measure 
+
+$e_{i,z,t}$ error term
+
+## V. Model | BDD
+
+- Black(1999)
+
+- $Z_{z,n}$ from the hedonic model may not account for everything 
+
+$$\ (2) ln(P_{i,z,b}) = \alpha+X_{i,z,b}+K_{b}+\Gamma_{z}+e_{i,z,t} $$ 
+
+$Z_{z,n}$ goes away replaced by $K_{b}$ which is a vector of boundary dummies
+
+
+## V. Model | Fixed Effects/DID
+
+- Figlio and Lucas (2004)
+
+- Effect of grades over time
+
+
+$$\ (3) ln(P_{i,n,z,m,y}) = \alpha_{i} + \beta_{m} + Z_{n,y} +\Gamma_{i,z,t}+e_{i,n,z,m,y} $$
+
+$\ln(P_{i,n,z,m,y})$ is the price for for property i, in school zone z, neighborhood n, month m, and year y
+
+$\alpha_{i}$ fixed property effects that don't change over time
+
+$\beta_{m}$ monthly dummies
+
+
+## VI. Very Prelimary Results
+
+
+Show only treatment varibales of interest
+
+
+```{r, echo=FALSE, results='asis',warning=FALSE,header=FALSE} 
+pl <- filter(za,bu_class == "01 ONE FAMILY HOMES", Y == 12, Grade_11 != "NA", za$SALE.PRICE > 1000, za$SALE.PRICE < 3000000)
+pl$yb <- pl$YEAR.BUILT - 1950 
+pl2 <- filter(pl, Grade_11 == "A" | Grade_11 == "B" )
+pl3 <- filter(pl, Grade_11 == "B" | Grade_11 == "C" )
+pl4 <- filter(pl, Grade_11 == "C" | Grade_11 == "D" )
+pl5 <- filter(pl, Grade_11 == "D" | Grade_11 == "F" )
+
+r1 <- lm(log(pl$SALE.PRICE)~pl$math_sco+pl$black_per+pl$white_per+pl$asian_per+pl$ell_percent+pl$BOROUGH+pl$LAND.SQUAR+pl$GROSS.SQUA+pl$TOTAL.UNIT+poly(pl$yb,3))
+r2 <- lm(log(pl2$SALE.PRICE)~pl2$Grade_11+pl2$eng_sco+pl2$black_per+pl2$white_per+pl2$asian_per+pl2$ell_percent+pl2$BOROUGH+poly(pl2$LAND.SQUAR,3)+poly(pl2$GROSS.SQUA,3)+pl2$TOTAL.UNIT+poly(pl2$yb,3))
+
+stargazer(r1,type="html",dep.var.labels = "Log Property Price",style="qje",keep = c("\\Grade_11B\\b"))
+```
+
+---
+
+```{r, echo=TRUE, results='asis',warning=FALSE,header=FALSE} 
+round(prop.table(table(ac_11$Grade_12,ac_11$Grade_11),1)*100,2)
+```
+
+---
+```{r, echo=FALSE, results='asis',warning=FALSE,header=FALSE} 
+a <- round(prop.table(table(ac_11$Grade_12,ac_11$Grade_11),1)*100,2)
+htmlTable(a)
+```
+
+
+## VII. Problems/To Do
+
+Problems
+
+- Missing Earlier Data
+
+- Distance
+
+- Boundaries that are not natural or random i.e. a highway or river dividing a school zone
+
+- Test Scores all students eg all grades, but what about K-8 Schools that include 6-8? Should try on different grades? 3 earliest. 3 Year average score?
+
+To Do
+
+- Middle Schools
+
+- Census Tract Data
+
+- Model selection
+
+- Data Corrections/checks
+
+
